@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MECH1560 – Major Project Gantt Chart</title>
-
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -38,12 +37,20 @@
   .page-header-left h1 {
     font-size: 17px;
     font-weight: 600;
+    color: #1a1a18;
+    letter-spacing: -0.01em;
   }
-
   .page-header-left p {
     font-size: 12px;
     color: #7a796f;
     margin-top: 3px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .btn {
@@ -53,15 +60,15 @@
     border-radius: 7px;
     border: 1px solid #d0cfc8;
     background: #ffffff;
+    color: #1a1a18;
     padding: 6px 14px;
     cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    white-space: nowrap;
   }
-
-  .btn.primary {
-    background: #1a1a18;
-    color: white;
-    border-color: #1a1a18;
-  }
+  .btn:hover { background: #f5f4f0; border-color: #b0afa8; }
+  .btn.primary { background: #1a1a18; color: #ffffff; border-color: #1a1a18; }
+  .btn.primary:hover { background: #333330; }
 
   .gantt-wrap { padding: 1.5rem 2rem 2rem; }
 
@@ -71,7 +78,6 @@
     margin-bottom: 18px;
     flex-wrap: wrap;
   }
-
   .legend-item {
     display: flex;
     align-items: center;
@@ -79,25 +85,18 @@
     font-size: 11px;
     color: #4a4a46;
   }
-
   .legend-dot {
     width: 9px; height: 9px;
     border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .gantt-header-row {
     display: flex;
     margin-bottom: 4px;
   }
-
   .label-col { width: 200px; flex-shrink: 0; }
-
-  .weeks-area {
-    flex: 1;
-    display: flex;
-    border-bottom: 1px solid #e0dfd8;
-  }
-
+  .weeks-area { flex: 1; display: flex; border-bottom: 1px solid #e0dfd8; }
   .week-col {
     flex: 1;
     text-align: center;
@@ -105,52 +104,57 @@
     font-weight: 600;
     color: #7a796f;
     padding-bottom: 5px;
+    letter-spacing: 0.02em;
   }
-
   .week-col.now { color: #185FA5; }
 
   .milestones-row {
     display: flex;
     margin-bottom: 14px;
   }
-
   .milestones-label {
     width: 200px;
+    flex-shrink: 0;
     font-size: 10px;
     color: #7a796f;
     padding-top: 3px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-
   .milestones-grid {
     flex: 1;
     position: relative;
     height: 42px;
   }
-
   .vline {
     position: absolute;
     top: 0; bottom: 0;
     width: 1px;
     background: #ebe9e2;
+    pointer-events: none;
   }
-
   .milestone {
     position: absolute;
     transform: translateX(-50%);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
   }
-
   .milestone-diamond {
     width: 9px; height: 9px;
     background: #D85A30;
     transform: rotate(45deg);
-    margin: auto;
+    flex-shrink: 0;
   }
-
   .milestone-label {
     font-size: 8.5px;
     color: #D85A30;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.25;
+    font-weight: 500;
   }
 
   .track-header {
@@ -159,36 +163,30 @@
     gap: 7px;
     margin: 14px 0 6px;
   }
-
-  .track-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  .track-name { font-size: 11.5px; font-weight: 600; }
-
-  .track-line {
-    flex: 1;
-    height: 1px;
-    background: #ebe9e2;
-  }
+  .track-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .track-name { font-size: 11.5px; font-weight: 600; color: #1a1a18; }
+  .track-hint { font-size: 10.5px; color: #7a796f; }
+  .track-line { flex: 1; height: 1px; background: #ebe9e2; margin-left: 4px; }
 
   .task-row {
     display: flex;
     align-items: center;
     margin-bottom: 4px;
+    min-height: 28px;
   }
-
   .task-label {
     width: 200px;
+    flex-shrink: 0;
     font-size: 11px;
     color: #4a4a46;
     padding-right: 12px;
+    line-height: 1.35;
   }
-
   .task-grid {
     flex: 1;
     position: relative;
     height: 28px;
   }
-
   .task-bar {
     position: absolute;
     height: 20px;
@@ -198,43 +196,144 @@
     display: flex;
     align-items: center;
     padding: 0 8px;
+    overflow: hidden;
+    transition: opacity 0.12s, transform 0.1s;
+    gap: 5px;
   }
-
+  .task-bar:hover { opacity: 0.82; transform: scaleY(1.05); }
   .assignee-pill {
     font-size: 9px;
     color: white;
-    background: rgba(0,0,0,0.25);
+    background: rgba(0,0,0,0.22);
     border-radius: 8px;
     padding: 1px 6px;
+    white-space: nowrap;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     display: none;
+    flex-shrink: 0;
+  }
+
+  .assign-panel {
+    display: none;
+    margin-top: 14px;
+    padding: 13px 16px;
+    background: #f5f4f0;
+    border-radius: 8px;
+    border: 1px solid #e0dfd8;
+  }
+  .assign-task-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a18;
+    margin-bottom: 8px;
+  }
+  .assign-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .assign-input {
+    font-family: inherit;
+    font-size: 12px;
+    border: 1px solid #d0cfc8;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: white;
+    color: #1a1a18;
+    flex: 1;
+    min-width: 130px;
+    max-width: 200px;
+    outline: none;
+  }
+  .assign-input:focus { border-color: #888780; }
+
+  .status-bar {
+    padding: 10px 2rem;
+    background: #f5f4f0;
+    border-top: 1px solid #e0dfd8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .status-text { font-size: 11px; color: #7a796f; }
+  .status-assigned { font-size: 11px; color: #185FA5; font-weight: 500; }
+
+  /* ── Print styles ── */
+  @media print {
+    body { background: white; padding: 0; }
+    .page { border-radius: 0; border: none; max-width: 100%; }
+    .toolbar, .assign-panel, .status-bar, .no-print { display: none !important; }
+    .page-header { padding: 1rem 1.5rem; }
+    .gantt-wrap { padding: 1rem 1.5rem 1.5rem; }
+    .task-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .milestone-diamond { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   }
 </style>
 </head>
-
 <body>
 
-<div class="page">
+<div class="page" id="page-root">
 
   <div class="page-header">
     <div class="page-header-left">
       <h1>MECH1560 – Major Project Plan</h1>
-      <p>Firebase synced version</p>
+      <p>Weeks 9–13 &nbsp;·&nbsp; Gravitational device build &amp; reporting</p>
     </div>
-    <div>
-      <button class="btn" onclick="window.print()">Print</button>
+    <div class="toolbar no-print">
+      <button class="btn" onclick="window.print()">&#128438; Print / Save PDF</button>
+      <button class="btn primary" onclick="exportPNG()">&#8659; Download PNG</button>
+      <button class="btn" onclick="clearAll()" style="color:#D85A30;">Clear all assignments</button>
     </div>
   </div>
 
-  <div class="gantt-wrap">
+  <div class="gantt-wrap" id="gantt-wrap">
 
-    <div id="tracks"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75;"></div> Device Build (1–2 people)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#378ADD;"></div> Final Report (remaining members)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#BA7517;"></div> Presentation (remaining members)</div>
+      <div class="legend-item"><div style="width:9px;height:9px;background:#D85A30;transform:rotate(45deg);flex-shrink:0;"></div> Deadline</div>
+    </div>
 
+    <div class="gantt-header-row">
+      <div class="label-col"></div>
+      <div class="weeks-area" id="week-headers"></div>
+    </div>
+
+    <div class="milestones-row">
+      <div class="milestones-label">Deadlines</div>
+      <div class="milestones-grid" id="milestones-grid"></div>
+    </div>
+
+    <div id="tracks-container"></div>
+
+    <div class="assign-panel" id="assign-panel">
+      <div class="assign-task-name" id="assign-task-name"></div>
+      <div class="assign-row">
+        <input class="assign-input" type="text" id="assign-input" placeholder="Team member name…">
+        <button class="btn primary" id="btn-save">Assign</button>
+        <button class="btn" id="btn-remove">Remove</button>
+        <button class="btn" id="btn-cancel">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="status-bar">
+    <span class="status-text">Click any task bar to assign a team member &nbsp;·&nbsp; Assignments saved in this browser</span>
+    <span class="status-assigned" id="assigned-count"></span>
   </div>
 
 </div>
 
-<script type="module">
-
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+ <script>
+   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
@@ -256,97 +355,195 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const ref = doc(db, "projects", "mech1560");
 
+/* ---------------- YOUR ORIGINAL DATA ---------------- */
+
 const WK_START = 9, WK_SPAN = 5;
 
 const TRACKS = [
-  { id:'build', name:'Device Build', color:'#1D9E75' },
-  { id:'report', name:'Final Report', color:'#378ADD' },
-  { id:'pres', color:'#BA7517', name:'Presentation' }
+  { id: 'build', name: 'Device Build', hint: '1–2 people', color: '#1D9E75' },
+  { id: 'report', name: 'Final Report', hint: 'remaining members', color: '#378ADD' },
+  { id: 'pres', name: 'Presentation', hint: 'remaining members', color: '#BA7517' },
 ];
 
 const TASKS = [
-  { id:'t1', label:'Design & materials', start:9, end:10, track:'build' },
-  { id:'t2', label:'Purchase materials', start:9.5, end:11, track:'build' },
-  { id:'t3', label:'Build device', start:10, end:12, track:'build' },
+  { id:'t1', label:'Finalise design & materials list', start:9.0, end:9.75, track:'build' },
+  { id:'t2', label:'Source & purchase materials', start:9.4, end:10.5, track:'build' },
+  { id:'t3', label:'Build device', start:10.3, end:12.0, track:'build' },
+  { id:'t4', label:'Test & calibrate device', start:11.5, end:12.8, track:'build' },
+  { id:'t5', label:'Final prep & run-day readiness', start:12.5, end:13.3, track:'build' },
 
-  { id:'r1', label:'Report writing', start:9, end:12, track:'report' },
-  { id:'p1', label:'Slides & rehearsal', start:10, end:12, track:'pres' }
+  { id:'r1', label:'Revise prelim report sections', start:9.0, end:10.5, track:'report' },
+  { id:'r2', label:'Engineering analysis (energy, forces)', start:10.0, end:11.5, track:'report' },
+  { id:'r3', label:'AS1100 technical drawings (3 parts)', start:10.4, end:12.0, track:'report' },
+  { id:'r4', label:'Material selection writeup (3 parts)', start:11.5, end:12.5, track:'report' },
+  { id:'r5', label:'Construction desc. & results section', start:12.0, end:13.2, track:'report' },
+  { id:'r6', label:'Final editing & submission', start:13.2, end:14.0, track:'report' },
+
+  { id:'p1', label:'Slide content & structure', start:10.0, end:11.5, track:'pres' },
+  { id:'p2', label:'Build & design slides', start:11.2, end:12.0, track:'pres' },
+  { id:'p3', label:'Rehearsal', start:11.6, end:12.0, track:'pres' },
 ];
 
+const MILESTONES = [
+  { week: 11, label: 'Meeting\nminutes' },
+  { week: 12, label: 'Presentation' },
+  { week: 13, label: 'Testing +\nFinal report' },
+];
+
+const WEEKS = ['Wk 9 ← now', 'Wk 10', 'Wk 11', 'Wk 12', 'Wk 13'];
+
 let assignments = {};
+let activeId = null;
 
-const p = w => (((w-WK_START)/WK_SPAN)*100) + '%';
-const pw = (s,e)=>(((e-s)/WK_SPAN)*100) + '%';
+/* ---------------- ORIGINAL HELPERS ---------------- */
 
-function render(){
+const p  = w => (((w - WK_START) / WK_SPAN) * 100).toFixed(2) + '%';
+const pw = (s, e) => (((e - s) / WK_SPAN) * 100).toFixed(2) + '%';
+const vlines = () => [20,40,60,80].map(x => `<div class="vline" style="left:${x}%"></div>`).join('');
 
-  const container = document.getElementById("tracks");
+/* ---------------- BUILD UI (UNCHANGED) ---------------- */
 
-  container.innerHTML = TRACKS.map(track => {
+function buildGantt() {
+  const wh = document.getElementById('week-headers');
+  wh.innerHTML = WEEKS.map((w,i) =>
+    `<div class="week-col${i===0?' now':''}">${w}</div>`
+  ).join('');
 
+  const mg = document.getElementById('milestones-grid');
+  mg.innerHTML = vlines() + MILESTONES.map(m =>
+    `<div class="milestone" style="left:${p(m.week)}">
+      <div class="milestone-diamond"></div>
+      <div class="milestone-label">${m.label.replace('\n','<br>')}</div>
+    </div>`
+  ).join('');
+
+  const tc = document.getElementById('tracks-container');
+  tc.innerHTML = TRACKS.map(track => {
     const tasks = TASKS.filter(t => t.track === track.id);
+
+    const taskRows = tasks.map(task =>
+      `<div class="task-row">
+        <div class="task-label">${task.label}</div>
+        <div class="task-grid">
+          ${vlines()}
+          <div id="bar-${task.id}" class="task-bar"
+            style="left:${p(task.start)};width:${pw(task.start,task.end)};background:${track.color};"
+            data-id="${task.id}">
+            <span id="badge-${task.id}" class="assignee-pill"></span>
+          </div>
+        </div>
+      </div>`
+    ).join('');
 
     return `
       <div class="track-header">
-        <div class="track-dot" style="background:${track.color}"></div>
-        <div class="track-name">${track.name}</div>
+        <div class="track-dot" style="background:${track.color};"></div>
+        <span class="track-name">${track.name}</span>
+        <span class="track-hint">(${track.hint})</span>
         <div class="track-line"></div>
       </div>
+      ${taskRows}`;
+  }).join('');
 
-      ${tasks.map(task => `
-        <div class="task-row">
-          <div class="task-label">${task.label}</div>
-          <div class="task-grid">
-
-            <div class="task-bar"
-              style="left:${p(task.start)};width:${pw(task.start,task.end)};background:${track.color}"
-              onclick="assign('${task.id}')">
-
-              <span class="assignee-pill" id="a-${task.id}">
-                ${assignments[task.id] || ""}
-              </span>
-
-            </div>
-
-          </div>
-        </div>
-      `).join("")}
-
-    `;
-  }).join("");
-
-  Object.keys(assignments).forEach(id => {
-    const el = document.getElementById("a-"+id);
-    if(el){
-      el.style.display = "block";
-      el.textContent = assignments[id];
-    }
+  TASKS.forEach(task => {
+    document.getElementById('bar-' + task.id)
+      .addEventListener('click', () => openAssign(task.id));
   });
 }
 
-window.assign = async function(id){
+/* ---------------- FIREBASE SYNC ---------------- */
 
-  const name = prompt("Assign:", assignments[id] || "");
-
-  if(name === null) return;
-
-  if(name.trim() === ""){
-    delete assignments[id];
-  } else {
-    assignments[id] = name.trim();
+onSnapshot(ref, (snap) => {
+  if (snap.exists()) {
+    assignments = snap.data().assignments || {};
+    renderBadges();
   }
-
-  await setDoc(ref, { assignments });
-};
-
-onSnapshot(ref, snap => {
-  assignments = snap.exists() ? snap.data().assignments || {} : {};
-  render();
 });
 
-render();
+/* ---------------- BADGES ---------------- */
 
+function renderBadges() {
+  let count = 0;
+
+  TASKS.forEach(t => {
+    const badge = document.getElementById('badge-' + t.id);
+    const name = assignments[t.id];
+
+    if (!badge) return;
+
+    badge.textContent = name || '';
+    badge.style.display = name ? 'block' : 'none';
+
+    if (name) count++;
+  });
+
+  const el = document.getElementById('assigned-count');
+  if (el) el.textContent = count ? `${count} of ${TASKS.length} tasks assigned` : '';
+}
+
+/* ---------------- ASSIGN LOGIC ---------------- */
+
+function openAssign(id) {
+  activeId = id;
+  const task = TASKS.find(t => t.id === id);
+
+  document.getElementById('assign-task-name').textContent = task.label;
+  document.getElementById('assign-input').value = assignments[id] || '';
+  document.getElementById('assign-panel').style.display = 'block';
+
+  setTimeout(() => document.getElementById('assign-input').focus(), 30);
+}
+
+async function saveAssign() {
+  if (!activeId) return;
+
+  const val = document.getElementById('assign-input').value.trim();
+
+  if (val) assignments[activeId] = val;
+  else delete assignments[activeId];
+
+  await setDoc(ref, { assignments });
+
+  renderBadges();
+  cancelAssign();
+}
+
+async function removeAssign() {
+  if (!activeId) return;
+
+  delete assignments[activeId];
+
+  await setDoc(ref, { assignments });
+
+  renderBadges();
+  cancelAssign();
+}
+
+function cancelAssign() {
+  activeId = null;
+  document.getElementById('assign-panel').style.display = 'none';
+}
+
+function clearAll() {
+  if (!confirm('Remove all assignments?')) return;
+  assignments = {};
+  setDoc(ref, { assignments });
+  renderBadges();
+}
+
+/* ---------------- INIT ---------------- */
+
+buildGantt();
+renderBadges();
+
+document.getElementById('btn-save').addEventListener('click', saveAssign);
+document.getElementById('btn-remove').addEventListener('click', removeAssign);
+document.getElementById('btn-cancel').addEventListener('click', cancelAssign);
+
+document.getElementById('assign-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveAssign();
+  if (e.key === 'Escape') cancelAssign();
+});
 </script>
-
 </body>
 </html>
